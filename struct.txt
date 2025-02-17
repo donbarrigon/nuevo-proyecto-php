@@ -1,0 +1,34 @@
+mi-proyecto-laravel/
+│── app/                      # Contiene la lógica principal de la aplicación
+│   ├── Console/              # Comandos personalizados de Artisan
+│   ├── Exceptions/           # Manejo de excepciones personalizadas
+│   ├── Filament/             # Panel de administración con Filament (si se usa)
+│   ├── Http/                 # Controladores, middleware y requests
+│   │   ├── Controllers/      # Controladores de la aplicación
+│   │   ├── Middleware/       # Middleware de la aplicación
+│   │   ├── Requests/         # Validación de formularios y peticiones
+│   ├── Models/               # Modelos de Eloquent
+│   ├── Providers/            # Proveedores de servicios de Laravel
+│── bootstrap/                # Inicialización del framework y carga de archivos
+│── config/                   # Configuración de la aplicación
+│── database/                 # Migraciones, seeders y factories
+│   ├── factories/            # Fábricas de datos para pruebas
+│   ├── migrations/           # Migraciones de la base de datos
+│   ├── seeders/              # Carga de datos iniciales
+│── lang/                     # Archivos de traducción
+│── public/                   # Punto de entrada (index.php), assets públicos
+│── resources/                # Vistas, componentes, archivos estáticos
+│   ├── css/                  # Archivos CSS
+│   ├── js/                   # Archivos JavaScript
+│   ├── views/                # Plantillas Blade
+│── routes/                   # Definición de rutas
+│   ├── api.php               # Rutas de la API (sin estado)
+│   ├── web.php               # Rutas web (con estado y sesiones)
+│   ├── console.php           # Comandos Artisan personalizados
+│── storage/                  # Archivos generados (logs, caché, uploads)
+│   ├── app/                  # Archivos generados por la aplicación
+│   ├── framework/            # Caché y sesiones de Laravel
+│   ├── logs/                 # Archivos de registro (logs)
+│── tests/                    # Pruebas unitarias y funcionales
+│── vendor/                   # Dependencias instaladas con Composer
+│── .env                      # Variables de entorno (configuración sensible)

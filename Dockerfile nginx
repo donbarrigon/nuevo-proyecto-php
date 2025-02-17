@@ -1,0 +1,61 @@
+
+# Usa la imagen oficial de PHP con Nginx
+# https://hub.docker.com/_/php
+FROM php:8.3-fpm
+
+# Instalar Nginx
+RUN apt-get update && apt-get install -y nginx
+
+# Configurar PHP para Cloud Run.
+# Precompilar el código PHP con opcache.
+RUN docker-php-ext-install -j "$(nproc)" opcache
+
+# Configurar la configuración de PHP para Cloud Run
+RUN set -ex; \
+  { \
+    echo "; Cloud Run enforces memory & timeouts"; \
+    echo "memory_limit = -1"; \
+    echo "max_execution_time = 0"; \
+    echo "; File upload at Cloud Run network limit"; \
+    echo "upload_max_filesize = 32M"; \
+    echo "post_max_size = 32M"; \
+    echo "; Configure Opcache for Containers"; \
+    echo "opcache.enable = On"; \
+    echo "opcache.validate_timestamps = Off"; \
+    echo "; Configure Opcache Memory (Application-specific)"; \
+    echo "opcache.memory_consumption = 32"; \
+  } > "$PHP_INI_DIR/conf.d/cloud-run.ini"
+
+# Copiar el código personalizado desde el host
+WORKDIR /var/www/html
+COPY . ./ 
+
+# Configurar el puerto para Cloud Run (en Nginx)
+RUN sed -i 's/listen 80;/listen ${PORT};/' /etc/nginx/sites-available/default
+
+# Configurar Nginx para servir PHP
+# Usaremos fastcgi_pass para procesar las solicitudes PHP con PHP-FPM
+RUN echo "server {" > /etc/nginx/sites-available/default \
+  && echo "    listen ${PORT};" >> /etc/nginx/sites-available/default \
+  && echo "    server_name localhost;" >> /etc/nginx/sites-available/default \
+  && echo "    root /var/www/html;" >> /etc/nginx/sites-available/default \
+  && echo "    index index.php index.html index.htm;" >> /etc/nginx/sites-available/default \
+  && echo "    location / {" >> /etc/nginx/sites-available/default \
+  && echo "        try_files \$uri \$uri/ =404;" >> /etc/nginx/sites-available/default \
+  && echo "    }" >> /etc/nginx/sites-available/default \
+  && echo "    location ~ \.php\$ {" >> /etc/nginx/sites-available/default \
+  && echo "        include snippets/fastcgi-php.conf;" >> /etc/nginx/sites-available/default \
+  && echo "        fastcgi_pass unix:/var/run/php/php8.3-fpm.sock;" >> /etc/nginx/sites-available/default \
+  && echo "        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;" >> /etc/nginx/sites-available/default \
+  && echo "        include fastcgi_params;" >> /etc/nginx/sites-available/default \
+  && echo "    }" >> /etc/nginx/sites-available/default \
+  && echo "}" >> /etc/nginx/sites-available/default
+
+# Habilitar el servicio de Nginx y PHP-FPM
+RUN service nginx start
+
+# Exponer el puerto que Cloud Run usará
+EXPOSE ${PORT}
+
+# Iniciar tanto Nginx como PHP-FPM
+CMD service nginx start && php-fpm

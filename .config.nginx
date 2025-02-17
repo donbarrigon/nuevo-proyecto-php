@@ -1,0 +1,28 @@
+server {
+    listen 80;
+    server_name mi-dominio.com;
+
+    root /var/www/mi-proyecto;
+    index index.php index.html;
+
+    # 📌 Servir la aplicación Vue desde /dist/
+    location / {
+        root /var/www/mi-proyecto/dist;
+        index index.html;
+        try_files $uri /index.html;
+    }
+
+    # 📌 Servir la API PHP en /api/
+    location /api/ {
+        alias /var/www/mi-proyecto/app/controller/;
+        index index.php;
+        try_files $uri $uri.php =404;  # 🔹 Intenta agregar .php si no lo tiene
+
+        location ~ \.php$ {
+            include fastcgi_params;
+            fastcgi_pass unix:/run/php/php8.1-fpm.sock;
+            fastcgi_index index.php;
+            fastcgi_param SCRIPT_FILENAME /var/www/mi-proyecto/app/controller$fastcgi_script_name;
+        }
+    }
+}

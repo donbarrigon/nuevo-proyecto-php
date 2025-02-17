@@ -1,0 +1,20 @@
+{
+    "name": "donbarrigon/php-clasic",
+    "description": "Base de proyecto clasico de php a la antiguita",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "authors": [
+        {
+            "name": "donbarrigon",
+            "email": "erespereza@gmail.com"
+        }
+    ],
+    "require": {
+        "mongodb/mongodb": "^1.20"
+    }
+}
