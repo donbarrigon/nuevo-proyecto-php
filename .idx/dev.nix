@@ -14,11 +14,14 @@
     pkgs.nodejs_20
     pkgs.mongodb-6_0
     pkgs.mongosh
+    pkgs.nginx
   ];
 
   services.mongodb = {
     enable = true;
   };
+
+  
   
   # Sets environment variables in the workspace
   env = {};
@@ -34,7 +37,8 @@
       };
       # Runs when a workspace is (re)started
       onStart= {
-        run-server = "php -S localhost:3000 index.php";
+          start-database = "mongod --port 27017 --fork --logpath ./.idx/database.log --dbpath ./.idx/.data";
+          run-server = "cd app/Handlers && php -S localhost:3000";
       };
     };
   };
