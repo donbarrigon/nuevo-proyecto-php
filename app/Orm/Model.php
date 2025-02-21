@@ -18,12 +18,12 @@ class Model
      * es el nombre de la tabla o colecion en la base de datos
      * @var string
      */
-    public string $modelName;
+    public string $name;
 
     /**
      * @var array<array{type: string, length: int}>
      */
-    public array $modelStruct; 
+    public array $schema; 
 
     /**
      * @var array<string>
@@ -47,7 +47,7 @@ class Model
 
     public mixed $result = []; // almacena los resultados de los querys de momento
 
-    public function __construct(public Client|Database|mysqli|Connection $db) { }
+    public function __construct(public Client|Database|mysqli|Connection &$db) { }
 
     // los observers
     public function beforeSave():   ?string { return null; }
@@ -82,7 +82,7 @@ class Model
 
     public function hasField(string $field): bool
     {
-        if (isset($this->modelStruct[$field]))
+        if (isset($this->schema[$field]))
         {
             return true;
         }
@@ -91,6 +91,6 @@ class Model
 
     public function getAllFieldsNames(): array
     {
-        return array_keys($this->modelStruct);
+        return array_keys($this->schema);
     }
 }

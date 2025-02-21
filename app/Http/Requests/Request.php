@@ -39,13 +39,6 @@ class Request
         }
     }
 
-    public function prepareForValidation(): array { return []; }
-
-    public function rules(): array
-    {
-        return [];
-    }
-
     public function exitIfHasErrors(): void
     {
         if (!empty($this->errors))
@@ -53,4 +46,25 @@ class Request
             response_error_json('bad request', $this->errors, 400);
         }
     }
+
+    public function getAll(): array
+    {
+        $merged = array_merge($this->get, $this->post);
+
+        if (!empty($this->body))
+        {
+            if (isset($this->body[0]) && is_array($this->body[0]))
+            {
+                //return array_map(fn($item) => array_merge($merged, $item), $this->body);
+                return $this->body;
+            }
+            return array_merge($merged, $this->body);
+        }
+        return $merged;
+    }
+
+    public function prepareForValidation(): array { return []; }
+
+    public function rules(): array { return []; }
+
 }

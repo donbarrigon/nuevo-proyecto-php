@@ -2,11 +2,10 @@
 namespace App\Models;
 
 use App\Orm\Model;
-// use App\Orm\Type;
 
-class User extends Model
+class FakeUser extends Model
 {
-    public string $name = 'users';
+    public string $name = 'fake_users';
 
     public array $fillable = ['name', 'phone', 'email'];
 
@@ -56,21 +55,4 @@ class User extends Model
             'index' => true,
         ],
     ];
-
-    // forma segundaria y con mejor sintaxis de darle la estructura al modelo.
-    // public function __construct(public Client|Database|mysqli|Connection &$db)
-    // {
-    //     $this->schema = [
-    //         '_id' =>    Type::id(),
-    //         'name' =>  Type::string(255, Type::INDEX, Type::REQUIRED),
-    //         'phone' => Type::string(255, Type::UNIQUE, Type::REQUIRED),
-    //         'email' => Type::string(255, Type::UNIQUE, Type::REQUIRED),
-    //         'password' => Type::string(255, Type::REQUIRED),
-    //         'created_at' => Type::createdAt(),
-    //         'updated_at' => Type::updatedAt(),
-    //         'deleted_at' => Type::deletedAt(),
-    //     ];
-    //     // // otra forma mas rapida de agregar created_at, updated_at y deleted_at
-    //     // Type::addTimestamps($this->modelStruct);
-    // }
 }
