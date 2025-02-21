@@ -6,6 +6,9 @@ use MongoDB\Client as MongoClient;
 use MongoDB\Database;
 use RuntimeException;
 
+/**
+ * @deprecated Desde la versión 0.3.0, usa orm_connection_start() en su lugar.
+ */
 class Conexion {
 
     public $db;

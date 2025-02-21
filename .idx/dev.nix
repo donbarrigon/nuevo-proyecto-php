@@ -38,7 +38,7 @@
       # Runs when a workspace is (re)started
       onStart= {
           start-database = "mongod --port 27017 --fork --logpath ./.idx/database.log --dbpath ./.idx/.data";
-          run-server = "cd app/Handlers && php -S localhost:3000";
+          run-server = "cd app/Http/Handlers && php -S localhost:3000";
       };
     };
   };

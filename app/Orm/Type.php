@@ -1,7 +1,7 @@
 <?php
 namespace App\Orm;
 
-class Field
+class Type
 {
 
     public const INDEX =          'index';
@@ -236,7 +236,6 @@ class Field
         return [
             'type' => 'timestamp',
             'default' => 'CURRENT_TIMESTAMP',
-            'required' => true,
         ];
         return self::processConstraints($field, $constraints);
     }
