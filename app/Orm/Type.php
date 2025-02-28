@@ -16,7 +16,7 @@ class Type
     
     public static function id(string ...$constraints): array
     {
-        $field = self::defaultID('int64');
+        $field = self::defaultID('id');
         return self::processConstraints($field, $constraints);
     }
 
@@ -235,7 +235,7 @@ class Type
     {
         return [
             'type' => 'timestamp',
-            'default' => 'CURRENT_TIMESTAMP',
+            // 'default' => 'CURRENT_TIMESTAMP',
         ];
         return self::processConstraints($field, $constraints);
     }
@@ -244,7 +244,7 @@ class Type
     {
         return [
             'type' => 'timestamp',
-            'onupdate' => 'CURRENT_TIMESTAMP',
+            // 'onupdate' => 'CURRENT_TIMESTAMP',
         ];
         return self::processConstraints($field, $constraints);
     }
@@ -264,8 +264,6 @@ class Type
         $modelStruct ['updated_at'] = self::updatedAt();
         $modelStruct ['deleted_at'] = self::deletedAt();
     }
-
-
 
     private function defaultID(string $type): array
     {

@@ -1,96 +1,117 @@
 <?php
 namespace App\Orm;
 
-use MongoDB\Client;
-use MongoDB\Database;
-use mysqli;
-use PgSql\Connection;
-
 class Model 
 {
-
-    // /**
-    //  * @var Client|Database|mysqli|Connection
-    //  */
-    // public Client|Database|mysqli|Connection $db;
-
     /**
      * es el nombre de la tabla o colecion en la base de datos
      * @var string
      */
-    public string $name;
+    public string $name = '';
 
     /**
-     * @var array<array{type: string, length: int}>
+     * @var array<string, array<string, mixed>>
      */
-    public array $schema; 
-
-    /**
-     * @var array<string>
-     */
-    public array $fillable;
+    public array $fields = [];
 
     /**
      * @var array<string>
      */
-    public array $guarded;
+    public array $fillable = [];
 
     /**
      * @var array<string>
      */
-    public array $fields; // se usa para crear los querys
-    public array $where;  // se usa para crear los querys
-    public array $order;  // se usa para crear los querys
-    public int   $limit;  // se usa para crear los querys
-    public int   $offset; // se usa para crear los querys
-    public array $group;  // se usa para crear los querys
+    public array $guarded = [];
 
-    public mixed $result = []; // almacena los resultados de los querys de momento
+    /**
+     * @var array<string, int>
+     */
+    protected array $projection = [];
 
-    public function __construct(public Client|Database|mysqli|Connection &$db) { }
+    /**
+     * resultado de una busqueda
+     * @var array result
+     */
+    public array $result = [];
 
-    // los observers
-    public function beforeSave():   ?string { return null; }
-    public function afterSave():    ?string { return null; }
-    public function beforeDelete(): ?string { return null; }
-    public function afterDelete():  ?string { return null; }
-    public function beforeCreate(): ?string { return null; }
-    public function afterCreate():  ?string { return null; }
-    public function beforeUpdate(): ?string { return null; }
-    public function afterUpdate():  ?string { return null; }
+    public function __construct() { }
 
-    public function getSelectFields(array $fields): array
-    {
-        if (count($fields) === 0) {
-            return $this->getAllFieldsNames();
-        }
+    /**
+     * establece los valores por defecto establecidos por cada modelo
+     */
+    public function default(array &$data): void { }
+    public function onUpdate(array &$data): void { }
 
-        if (count($this->fields) === 0)
-        {
-            return $fields;
-        }
+    public function beforeCreate(array &$data): array { return []; }
+    public function afterCreate(array &$data):  array { return []; }
+
+    public function beforeUpdate(array &$data): array { return []; }
+    public function afterUpdate(array &$data):  array { return []; }
+
+    public function beforeDelete(array &$data): array { return []; }
+    public function afterDelete(array &$data):  array { return []; }
     
-        $result = [];
-        foreach ($fields as $field) {
-            if ($this->hasField($field)) {
-                $result[] = $field;
-            }
-        }
+    public function beforeRestore(array &$data): array { return []; }
+    public function afterRestore(array &$data):  array { return []; }
 
-        return $result;
-    }
+    public function beforeDestroy(array &$data): array { return []; }
+    public function afterDestroy(array &$data):  array { return []; }
 
     public function hasField(string $field): bool
     {
-        if (isset($this->schema[$field]))
+        if ($this->fields[$field])
         {
             return true;
         }
         return false;
     }
 
-    public function getAllFieldsNames(): array
+    /**
+     *  se asignan los campos que va a traer la consulta
+     * @param array<string> $inputFields
+     */
+    public function setProjection(array $inputFields = []): void
     {
-        return array_keys($this->schema);
+        foreach ($inputFields as $field)
+        {
+            if (isset($this->fields[$field]))
+            {
+                $this->projection[$field] = 1;
+            }
+        }
     }
+
+    /**
+     * se optienen los campos que se van a traer de la consulta
+     * @return array<string> $projection
+     */
+    public function getProjection(): array
+    {
+        if (empty($this->projection))
+        {
+            return $this->projection;
+        }
+        $projection = [];
+        foreach ($this->fields as $key => $value)
+        {
+            $projection[$key] = 1;
+        }
+        return $projection;
+    }
+
+    /**
+     * retorna un array con los nombres de los campos en la bd
+     * @return array<string>
+     */
+    public function getFields(): array
+    {
+        $fields = [];
+        foreach ($this->fields as $key => $value)
+        {
+            $fields[] = $key;
+        }
+        return $fields;
+    }
+
 }

@@ -17,11 +17,11 @@ use MongoDB\Database;
  *
  * @mutates $model->result
  */
-function orm_find(Model $model, int|string|array $key): ?string
+function orm_find(Model $model, int|string|array $key, array $fields = []): ?string
 {
-    $model->fields = $model->getSelectFields($model->fields);
+    $model->setFields($fields);
 
-    if(count($model->fields) === 0)
+    if (empty($model->fields))
     {
         return "No hay atributos válidos para buscar en [" . implode(', ', $model->fields) . "]";
     }
@@ -33,17 +33,36 @@ function orm_find(Model $model, int|string|array $key): ?string
 
         if (is_array($key))
         {
-            array_map (fn($k) => is_string($k) && preg_match('/^[0-9a-fA-F]{24}$/', $k) ? new \MongoDB\BSON\ObjectId($k) : $k, $key);
+            $key = array_map (fn($k) => is_string($k) && preg_match('/^[0-9a-fA-F]{24}$/', $k) ? new \MongoDB\BSON\ObjectId($k) : $k, $key);
             $filter = ['_id' => ['$in' => $key]];
+            $query = $collection->find($filter, ['projection' => $selectFields]);
+            
+            $model->result = iterator_to_array($query);
+            if ($model->convertObjectIdToString === true)
+            {
+                foreach ($model->result as &$doc) 
+                {
+                    if (isset($doc['_id']) /*&& $doc['_id'] instanceof MongoDB\BSON\ObjectId*/) {
+                        $doc['_id'] = (string) $doc['_id'];
+                    }
+                }
+            }
         } else {
             $key = is_string($key) && preg_match('/^[0-9a-fA-F]{24}$/', $key) ? new \MongoDB\BSON\ObjectId($key) : $key;
             $filter = ['_id' => $key];
+            $query = $collection->findOne($filter, ['projection' => $selectFields]);
+           
+            $model->result = iterator_to_array($query);
+            if ($model->convertObjectIdToString === true)
+            {
+                if (isset($model->result['_id'])) {
+                    $model->result['_id'] = (string) $model->result['_id'];
+                }
+            }
         }
 
-        $query = $collection->find($filter, ['projection' => $selectFields]);
-        $model->result = iterator_to_array($query);
-        
         return null; // Todo bien
+
     } catch (\Exception $e) {
         return "Error en find Mongodb: " . $e->getMessage();
     }

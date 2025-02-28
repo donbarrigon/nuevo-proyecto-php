@@ -53,7 +53,7 @@ function orm_connection_start(): Database
         header('Content-Type: application/json; charset=utf-8');
         http_response_code($statusCode);
 
-        echo json_encode($errorResponse, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        echo json_encode($errorResponse, JSON_UNESCAPED_UNICODE);
         exit;
     }
 }

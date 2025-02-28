@@ -12,17 +12,21 @@ use App\Orm\Model;
  * @return string|null Returns an error message on failure, or null on success.
  * 
  * @mutates $model->result
+ * @deprecated Desde la versión 0.3.0, usa orm_insert(Model $model, array $data) en su lugar.
  */
-function orm_create(Model $model, array &$data): ?string
+function orm_create(Model $model, array $data): ?string
 {
     try {
-        // $collection = $model->db->{$model->name};
+        
         if (empty($model->fillable) && empty($model->guarded))
         {
             return "The model must have either fillable or guarded attributes defined.";
         }
 
-        $collection = $model->db->selectCollection($model->name);
+        $err = $model->beforeCreate($data);
+        if ($err !== null) {
+            return $err;
+        }
         
         $processData = function (array $entry) use ($model) 
         {
@@ -48,8 +52,12 @@ function orm_create(Model $model, array &$data): ?string
             
             return $filtered;
         };
+        
+        // $collection = $model->db->{$model->name};
+        $collection = $model->db->selectCollection($model->name);
 
-        if (isset($data[0]) && is_array($data[0])) {
+        if (isset($data[0]) && is_array($data[0]))
+        {
             $filteredData = array_map($processData, $data);
             $result = $collection->insertMany($filteredData);
             
@@ -59,7 +67,7 @@ function orm_create(Model $model, array &$data): ?string
 
             // Asignar los _id generados a los datos originales
             foreach ($result->getInsertedIds() as $index => $id) {
-                $data[$index]['_id'] = $id;
+                $filteredData[$index]['_id'] = $id;
             }
         } else {
             $filteredData = $processData($data);
@@ -69,9 +77,31 @@ function orm_create(Model $model, array &$data): ?string
                 return 'Failed to insert the data.';
             }
             
-            $data['_id'] = $result->getInsertedId();
+            $filteredData['_id'] = $result->getInsertedId();
         }
-        $model->result = $data;
+
+        $err = $model->afterCreate($filteredData);
+        if ($err !== null) {
+            return $err;
+        }
+
+        $model->result = $filteredData;
+        if ($model->convertObjectIdToString === true)
+        {
+            if (isset($model->result[0]))
+            {
+                foreach ($model->result as &$doc) 
+                {
+                    if (isset($doc['_id']) /*&& $doc['_id'] instanceof MongoDB\BSON\ObjectId*/) {
+                        $doc['_id'] = (string) $doc['_id'];
+                    }
+                }
+            }else{
+                if (isset($model->result['_id'])) {
+                    $model->result['_id'] = (string) $model->result['_id'];
+                }
+            }
+        }
         return null;
 
     }catch (\MongoDB\Driver\Exception\Exception $e) {

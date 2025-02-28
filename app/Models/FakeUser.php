@@ -40,7 +40,6 @@ class FakeUser extends Model
         'password' => [
             'type' => 'string',
             'length' => 255,
-            'required' => true,
         ],
         'created_at' => [
             'type' => 'timestamp',
