@@ -19,12 +19,9 @@ use MongoDB\Database;
  */
 function orm_find(Model $model, int|string|array $key, array $fields = []): ?string
 {
-    $model->setFields($fields);
+    
 
-    if (empty($model->fields))
-    {
-        return "No hay atributos válidos para buscar en [" . implode(', ', $model->fields) . "]";
-    }
+    
 
     try {
         // MongoDB utiliza las claves de la proyección como un array
